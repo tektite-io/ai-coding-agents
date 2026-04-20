@@ -173,10 +173,24 @@ function walkMarkdownFiles(
   const results: { file: string; category?: string }[] = [];
   for (const entry of readdirSync(dir, { withFileTypes: true })) {
     const full = join(dir, entry.name);
-    if (entry.isDirectory()) {
+    // entry.isFile() / isDirectory() return false for symlinks; use statSync
+    // (which follows symlinks) so that symlinked .md files are discovered.
+    let resolvedIsDir = entry.isDirectory();
+    let resolvedIsFile = entry.isFile();
+    if (entry.isSymbolicLink()) {
+      try {
+        const st = statSync(full);
+        resolvedIsDir = st.isDirectory();
+        resolvedIsFile = st.isFile();
+      } catch {
+        // broken symlink — skip
+      }
+    }
+
+    if (resolvedIsDir) {
       // One level of subdirectory becomes the category label
       results.push(...walkMarkdownFiles(full, category ?? entry.name));
-    } else if (entry.isFile() && entry.name.endsWith(".md")) {
+    } else if (resolvedIsFile && entry.name.endsWith(".md")) {
       results.push({ file: full, category });
     }
   }
