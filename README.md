@@ -36,6 +36,7 @@
 - [Pre-commit hooks](#pre-commit-hooks)
 - [Development](#development)
 - [Troubleshooting](#troubleshooting)
+- [Contributing](#contributing)
 
 ## What this repo is
 
@@ -314,6 +315,10 @@ node --version
 # Run the check manually
 pre-commit run validate-jsonc --all-files
 ```
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for how to add agents, skills, commands, and rules, coding standards, and how the pre-commit hooks work.
 
 ---
 
