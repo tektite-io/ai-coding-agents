@@ -1,5 +1,6 @@
 <div align="center">
   <h1>ai-coding-agents</h1>
+  <img src="illustration.png" alt="ai-coding-agents illustration" width="800" />
   <p><strong>Personal AI agent configuration managed with GNU Stow — shared across opencode and pi-mono.</strong></p>
 </div>
 
