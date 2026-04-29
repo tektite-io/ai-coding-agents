@@ -35,9 +35,11 @@ Apply the following skills where relevant:
 ### 4. Update Graphify knowledge graph (if applicable)
 
 - Check whether a `graphify-out/` directory exists at the project root
-- If it exists, run: `graphify . --update`
+- If it exists, run: `graphify . --update --out ./graphify-out`
 - If not, skip silently
 
 ### 5. Sync memory bank
 
-- Run `/memory-bank` to persist updated project state
+- Check whether a `.ai-agents/memory-bank` directory exists at the project root
+- If it exists, run: `/memory-bank`
+- If not, skip silently
