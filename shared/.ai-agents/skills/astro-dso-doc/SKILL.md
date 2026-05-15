@@ -1,16 +1,17 @@
 ---
 name: astro-dso-doc
-description: Generates a complete, polished HTML documentation page, a processing checklist, an AstroBin post JSON, AND a ready-to-paste PixInsight project Description field for a deep-sky object (DSO) astrophotography project. Use this skill whenever the user mentions astrophotography, a DSO name (NGC, IC, Messier, Sharpless, etc.), wants to document an imaging session, mentions PixInsight project documentation, wants to create an observation report, or asks to generate a page/document for a nebula, galaxy, cluster, or other deep-sky target. Triggers on phrases like "create doc for NGC XXXX", "generate DSO page", "document my session on", "make a PixInsight doc for", "astro documentation page", "pixinsight project description", "description field pixinsight", "processing checklist", "workflow checklist", "astrobin", "astrobin post", "astrobin upload". Always use this skill — not a generic HTML generator — when the subject is a deep-sky object.
+description: Generates a complete, polished HTML documentation page, a processing checklist, an AstroBin post JSON, a PixInsight process icon set (XPSM), AND a ready-to-paste PixInsight project Description field for a deep-sky object (DSO) astrophotography project. Use this skill whenever the user mentions astrophotography, a DSO name (NGC, IC, Messier, Sharpless, etc.), wants to document an imaging session, mentions PixInsight project documentation, wants to create an observation report, or asks to generate a page/document for a nebula, galaxy, cluster, or other deep-sky target. Triggers on phrases like "create doc for NGC XXXX", "generate DSO page", "document my session on", "make a PixInsight doc for", "astro documentation page", "pixinsight project description", "description field pixinsight", "processing checklist", "workflow checklist", "astrobin", "astrobin post", "astrobin upload", "process icons", "xpsm", "pixinsight icons". Always use this skill — not a generic HTML generator — when the subject is a deep-sky object.
 ---
 
 # Astro DSO Documentation Generator
 
-Generates four deliverables for a deep-sky object (DSO) astrophotography project:
+Generates five deliverables for a deep-sky object (DSO) astrophotography project:
 
 1. **`project.json`** — a flat JSON file containing the PixInsight project description data (copy the `description` field value into the Description box of `.xosm`)
 2. **`doc/index.html`** — a rich, self-contained HTML documentation page (path goes into the Documentation field of `.xosm`), using the Catppuccin flavor palette with a theme switcher.
 3. **`doc/processing-checklist.html`** — an interactive step-by-step PixInsight processing checklist adapted to the target's filter set (LRGB, HOO, SHO, RGB-only, etc.), using the same Catppuccin design system.
 4. **`astrobin.json`** — a structured JSON file containing all AstroBin image post fields, ready to copy-paste into the AstroBin upload form.
+5. **`Process Icons - <common_name> - <workflow_type> workflow.xpsm`** — a PixInsight process icon set tailored to the detected workflow (LRGB, RGB, HOO, SHO), generated from the processing checklist phases.
 
 ---
 
@@ -205,7 +206,6 @@ Also replace all occurrences of `{{DSO_ID}}` inside `id="step-*"` attributes and
 Apply the following structural modifications based on the detected workflow mode:
 
 **LRGB workflow** (default — correct order):
-
 - Phase 02: Luminance linear (BXT + NXT only — **no stretch**)
 - Phase 03: RGB linear (SPFC + CC + SPCC + BXT + NXT — **no stretch**)
 - Phase 04: **LRGBCombination on linear masters** — combine L + RGB before any stretch
@@ -216,7 +216,6 @@ Apply the following structural modifications based on the detected workflow mode
 - Phase 09: Finalization (Curves, ICC, Export)
 
 **RGB workflow** (no Luminance):
-
 - Remove section 04 entirely (Phase 02 — Luminance Processing)
 - Remove section 09 entirely (Phase 07 — LRGB Integration)
 - Update section numbers accordingly (03→03, 05→04, 06→05, 07→06, 08→07, 10→08, 11→09)
@@ -225,7 +224,6 @@ Apply the following structural modifications based on the detected workflow mode
 - Remove Luminance legend item
 
 **HOO / SHO narrowband workflow**:
-
 - Remove section 04 (Luminance linear) — keep section 09 if Luminance is present
 - In section 05 (RGB linear): rename to "Narrowband Processing (Linear)"
   - Replace `ChannelCombination` step with: "PixelMath — HOO / SHO palette assembly"
@@ -238,22 +236,18 @@ Apply the following structural modifications based on the detected workflow mode
 - Update export filenames to `{{DSO_ID}}_HOO_final.*` or `{{DSO_ID}}_SHO_final.*`
 
 **HαRGB workflow**:
-
 - Keep full LRGB structure
 - Add one step after `ChannelCombination` in section 05: "PixelMath — Integrate Hα into Red channel (HαRGB blend)"
 - Uncomment Hα legend item and data cell
 - Tag the new step with `tag-ha` and `tag-rgb`
 
 **Smart telescope / pre-stacked** (single session file per filter, `stacking` = "Internal stacking by instrument"):
-
 - Replace the entire Phase 01 (section 03) with a single step:
-
   ```
   Import pre-stacked masters
   Copy the stacked output files into the project folder.
   No WBPP run required — calibration and stacking handled by the instrument.
   ```
-
 - Remove Blink Comparator steps
 
 #### 5b.5 — Save the file
@@ -265,7 +259,6 @@ EOF
 ```
 
 Tell the user:
-
 - **Processing Checklist** → `doc/processing-checklist.html`
 
 Checklist state (checked steps) persists across browser reloads via `localStorage`, keyed by DSO slug.
@@ -300,7 +293,6 @@ Build the AstroBin post fields JSON from all previously collected data (Steps 2,
 #### 5c.2 — Dataset link (telescope.live)
 
 If `site` or `telescope` contains "telescope.live" or "Telescope.live":
-
 - Set `link` to `"https://app.telescope.live/archive"` as the default dataset URL.
 - If the user provided a specific dataset URL in Block D, use it instead.
 - Otherwise set `link` to `""`.
@@ -308,7 +300,6 @@ If `site` or `telescope` contains "telescope.live" or "Telescope.live":
 #### 5c.3 — Equipment objects
 
 **imaging_telescopes** — one object per telescope:
-
 ```json
 {
   "name": "Telescope.live Remote Observatory",
@@ -317,12 +308,10 @@ If `site` or `telescope` contains "telescope.live" or "Telescope.live":
   "type": "REFRACTOR"
 }
 ```
-
 Parse aperture (mm) and focal length (mm) from the telescope string if present (e.g. `"50mm f/4"` → `aperture: 50, focal_length: 200`).
 Type heuristics: contains "Newton" or "Newtonian" → `"NEWTONIAN"`, "Cassegrain" or "SCT" → `"SCT"`, "Refractor" or "APO" or "ED" or "f/" → `"REFRACTOR"`, "Reflector" → `"REFLECTOR"`, otherwise `"OTHER"`.
 
 **imaging_cameras** — one object:
-
 ```json
 {
   "name": "QHY 600M",
@@ -330,11 +319,9 @@ Type heuristics: contains "Newton" or "Newtonian" → `"NEWTONIAN"`, "Cassegrain
   "modified": false
 }
 ```
-
 Type: if camera name contains "IMX", "CMOS", "ASI", "QHY", "ZWO", "Atik Horizon" → `"CCD"` (AstroBin uses CCD for all dedicated astro cameras). `modified` always `false` unless user stated "modded" or "full spectrum".
 
 **software** — always:
-
 ```json
 [{"name": "PixInsight", "version": ""}]
 ```
@@ -395,7 +382,6 @@ Produce one object per filter channel. Parse per-channel data from the `sessions
 ```
 
 Field rules:
-
 - `number` — sub count for this filter channel
 - `duration` — sub duration in seconds (parse from filename or session string, e.g. `300s`, `300.00s`)
 - `binning` — always `1` unless user specified otherwise
@@ -431,7 +417,6 @@ EOF
 ```
 
 **Example output** (M104, LRGB, Telescope.live):
-
 ```json
 {
   "title": "Sombrero Galaxy (NGC 4594)",
@@ -510,10 +495,173 @@ EOF
 ```
 
 Tell the user:
-
 - **AstroBin post fields** → `astrobin.json`
 - Fields `imaging_telescopes`, `imaging_cameras`, `filters`, `acquisition_details` map 1:1 to AstroBin's "Equipment" and "Acquisition" sections.
 - `image_file` must be filled manually when uploading.
+
+---
+
+### Step 5d — Generate Process Icons XPSM
+
+Generate a PixInsight process icon set (`.xpsm`) tailored to the detected workflow mode (Step 5b.1) and the specific target.
+
+#### 5d.1 — Filename
+
+```
+Process Icons - <common_name> - <workflow_type> workflow.xpsm
+```
+
+- `<common_name>` → `common_name` from project.json, spaces preserved (e.g. `Sombrero Galaxy`)
+- `<workflow_type>` → detected workflow mode, title-cased: `LRGB`, `RGB`, `HOO`, `SHO`, `HaRGB`
+
+Example: `Process Icons - Sombrero Galaxy - LRGB workflow.xpsm`
+
+Save to the current working directory (not inside `doc/`).
+
+#### 5d.2 — XPSM file structure
+
+All XPSM files share this skeleton:
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  PixInsight XML Process Serialization Module - XPSM 1.0
+  Generated: <GENERATED_DATE>
+  Target: <DSO_ID> — <COMMON_NAME>
+  Workflow: <WORKFLOW_TYPE>
+-->
+<xpsm version="1.0"
+  xmlns="http://www.pixinsight.com/xpsm"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.pixinsight.com/xpsm http://pixinsight.com/xpsm/xpsm-1.0.xsd">
+
+  [instance blocks]
+
+  [icon blocks]
+
+</xpsm>
+```
+
+Rules:
+- Every `<instance>` block must have a unique `id` ending in `_instance`
+- Every `<icon>` block references its instance via `instance="<id>"`
+- `xpos` always `2000`, `ypos` increments of `40` per icon from top
+- `workspace` always `"Workspace01"`
+- The `<description>` element on each instance must state the phase number, step number, and a one-line usage note
+
+#### 5d.3 — LRGB workflow icon set
+
+Generate the following instances and icons **in this exact order**:
+
+**PHASE 02 — Luminance Linear (no stretch)**
+
+| Icon ID | Class | Key parameters | Description |
+|---|---|---|---|
+| `STF_AutoStretch` | `ScreenTransferFunction` | 4 rows, c0=0.01732, m=0.02099, c1=1.0; interaction=Grayscale | Visual check only — do NOT apply permanently |
+| `BXT_CorrectOnly_Lum` | `BlurXTerminator` | correct_only=true, sharpen_stars=0.25, sharpen_nonstellar=0.90, auto_nonstellar_psf=true | First pass on Lum linear — PSF correction only |
+| `BXT_Full_Lum` | `BlurXTerminator` | correct_only=false, sharpen_stars=0.25, sharpen_nonstellar=0.90, auto_nonstellar_psf=true | Second pass on Lum linear — full sharpening |
+| `NXT_Lum` | `NoiseXTerminator` | denoise=0.70, enable_color_separation=false, iterations=2, detail=0.15 | Mono channel — color separation OFF |
+
+**PHASE 03 — RGB Linear (no stretch)**
+
+| Icon ID | Class | Key parameters | Description |
+|---|---|---|---|
+| `ChannelCombination` | `ChannelCombination` | colorSpace=RGB, 3 rows enabled=true id="" | Assemble R+G+B linear masters |
+| `SPCC` | `SpectrophotometricColorCalibration` | applyCalibration=true, catalogId=GaiaDR3SP, autoLimitMagnitude=true, neutralizeBackground=true | Color calibration — run ImageSolver first |
+| `BXT_CorrectOnly_RGB` | `BlurXTerminator` | correct_only=true, sharpen_stars=0.25, sharpen_nonstellar=0.90 | First pass on RGB linear |
+| `BXT_Full_RGB` | `BlurXTerminator` | correct_only=false, sharpen_stars=0.25, sharpen_nonstellar=0.90 | Second pass on RGB linear |
+| `NXT_RGB` | `NoiseXTerminator` | denoise=0.70, enable_color_separation=true, denoise_color=0.90, iterations=2 | Color channel — separation ON |
+
+**PHASE 04 — LRGB Combination (linear)**
+
+| Icon ID | Class | Key parameters | Description |
+|---|---|---|---|
+| `LRGBCombination` | `LRGBCombination` | clipHighlights=true, noiseReduction=false, layersRemoved=4, layersProtected=2, 4 channel rows enabled=true k=1.0 (first row k=0.5 for L), mL=0.500, mc=0.500 | Apply on linear RGB — L must be monochrome (ConvertToGrayscale if needed). All weights = 1.0 |
+
+**PHASE 05 — Stretch LRGB**
+
+| Icon ID | Class | Key parameters | Description |
+|---|---|---|---|
+| `Stretch_LRGB` | `GeneralizedHyperbolicStretch` | stretchType=ST_GeneralisedHyperbolic, stretchChannel=SC_RGB, stretchFactor=0.200, symmetryPoint=0.059964, highlightProtection=0.500 | Stretch combined LRGB — after LRGBCombination |
+| `SCNR` | `SCNR` | amount=1.00, protectionMethod=AverageNeutral, colorToRemove=Green, preserveLightness=true | Remove green cast after stretch |
+
+**PHASE 06 — Star Separation**
+
+| Icon ID | Class | Key parameters | Description |
+|---|---|---|---|
+| `StarXTerminator` | `StarXTerminator` | stars=true, unscreen=true, overlap=0.20 | Separate stars and starless from stretched LRGB |
+| `Curves_Stars_Sat` | `CurvesTransformation` | S channel: 3 rows (0→0, 0.5→0.58, 1→1); all other channels: identity 2 rows | Saturation boost on Stars-only image |
+
+**PHASE 07 — Starless LRGB Processing**
+
+| Icon ID | Class | Key parameters | Description |
+|---|---|---|---|
+| `GHS_Starless` | `GeneralizedHyperbolicStretch` | stretchType=ST_GeneralisedHyperbolic, stretchChannel=SC_RGB, stretchFactor=0.200, symmetryPoint=0.059964, highlightProtection=0.500 | Pull faint structures — adjust HP and SP per target |
+| `LHE` | `LocalHistogramEqualization` | radius=64, histogramBins=Bit12, slopeLimit=2.0, amount=0.500, circularKernel=true | Local contrast — conservative on LRGB |
+| `UnsharpMask` | `UnsharpMask` | sigma=2.00, amount=0.40, useLuminance=true, linear=false, deringing=false | Moderate — Lum already provides sharpness |
+| `NXT_Starless` | `NoiseXTerminator` | denoise=0.70, enable_color_separation=true, denoise_color=0.90, iterations=1, detail=0.15 | 2nd pass on starless — ~70% strength |
+
+**PHASE 08 — Recombination**
+
+| Icon ID | Class | Key parameters | Description |
+|---|---|---|---|
+| `PixelMath_Rescreen` | `PixelMath` | expression=`~((~starless)*(~stars))`, useSingleExpression=true, createNewImage=true, newImageColorSpace=RGB | Drag onto starless image — IDs must match open windows |
+
+**PHASE 09 — Finalization**
+
+| Icon ID | Class | Key parameters | Description |
+|---|---|---|---|
+| `Curves_Final` | `CurvesTransformation` | K channel: 4 rows (0→0, 0.25→0.22, 0.75→0.78, 1→1); L channel: 3 rows (0→0, 0.5→0.53, 1→1); S channel: 3 rows (0→0, 0.5→0.55, 1→1); all others identity | S-curve + midtone lift + saturation boost |
+| `ICCProfileTransformation` | `ICCProfileTransformation` | targetProfile=`sRGB IEC61966-2.1`, toDefaultProfile=false, renderingIntent=RelativeColorimetric, useBlackPointCompensation=true | Last step before export |
+
+#### 5d.4 — RGB workflow icon set
+
+Same as LRGB but:
+- **Remove** `NXT_Lum`, `BXT_CorrectOnly_Lum`, `BXT_Full_Lum`, `STF_AutoStretch` (Lum phase entirely absent)
+- **Remove** `LRGBCombination`
+- **Add** `Stretch_RGB` (same GHS parameters as `Stretch_LRGB`) immediately after `NXT_RGB`
+- Renumber phases: Phase 02 → RGB linear, Phase 03 → Stretch RGB, Phase 04 → Star separation, etc.
+
+#### 5d.5 — HOO / SHO narrowband workflow icon set
+
+Same base as RGB but:
+- **Replace** `ChannelCombination` with `PixelMath_HOO` or `PixelMath_SHO`:
+
+HOO PixelMath expression (3-channel: R=Ha, G=blend, B=OIII):
+```
+R: $T[0]*BrightnessControl
+G: k= adev($T[0])/adev($T[1]); g1= ((k*OIIIBoost)*($T[1]-med($T[1]))+med($T[0])); iif(OIII_SCurve==0,g1,3*g1^2-2*g1^3)*BrightnessControl
+B: k= adev($T[0])/adev($T[1]); b1= ((k*OIIIBoost)*($T[1]-med($T[1]))+med($T[0])); iif(OIII_SCurve==0,b1,3*b1^2-2*b1^3)*BrightnessControl
+Symbols: OIIIBoost=1.0; HaBlend=0.6; BrightnessControl=1.0; OIII_SCurve=0; k,g1,b1
+```
+
+- **Remove** `SPCC` → replace with a `SCNR` at green (for magenta star correction after narrowband palette)
+- **Add** `CorrectMagentaStars` note in description (Script-based, no XPSM instance available)
+
+#### 5d.6 — ypos layout
+
+Icons are placed top-to-bottom in a single column at `xpos=2000`, starting at `ypos=40`, incrementing by `40` per icon. A gap of `80` (one empty slot) separates each phase boundary.
+
+| Phase | Start ypos |
+|---|---|
+| Phase 02 | 40 |
+| Phase 03 | 40 + (n_phase02 × 40) + 80 |
+| Phase 04 | previous + (n_phase03 × 40) + 80 |
+| … | … |
+
+#### 5d.7 — Save the file
+
+```bash
+cat > "Process Icons - <common_name> - <workflow_type> workflow.xpsm" << 'EOF'
+[generated XPSM content]
+EOF
+```
+
+Tell the user:
+- **Process Icons** → `Process Icons - <common_name> - <workflow_type> workflow.xpsm`
+- Import in PixInsight via **File → Import Process Icons**
+- Icon descriptions include phase, step number, and usage reminders
+- Image IDs in `PixelMath_Rescreen` (`starless`, `stars`) must match actual open window names in PixInsight
 
 ---
 
@@ -678,6 +826,19 @@ Key fields and their sources:
 - All unknown/unparseable fields use `null`, never empty string `""`
 - `first_acquisition_date` and `last_acquisition_date` in `YYYY-MM-DD` format
 
+**`Process Icons - <name> - <workflow> workflow.xpsm`:**
+
+- Filename exactly follows the pattern `Process Icons - <common_name> - <workflow_type> workflow.xpsm`
+- Workflow type derived from filter set detection (Step 5b.1): `LRGB`, `RGB`, `HOO`, `SHO`, `HaRGB`
+- All `<instance>` IDs end in `_instance`; all `<icon>` IDs are clean names without suffix
+- `histogramBins` on `LocalHistogramEqualization` always uses enum value `Bit12` — never an integer
+- `LRGBCombination` only includes known valid parameters: `clipHighlights`, `noiseReduction`, `layersRemoved`, `layersProtected`, `channels` table, `mL`, `mc`
+- `ICCProfileTransformation` only includes: `targetProfile`, `toDefaultProfile`, `renderingIntent`, `useBlackPointCompensation`
+- Icon layout: single column at `xpos=2000`, `ypos` starts at `40`, increments `40` per icon, `80` gap between phases
+- `PixelMath_Rescreen` expression always `~((~starless)*(~stars))` — description reminds user to match image IDs
+- Narrowband PixelMath expressions use XML-escaped `<` as `&lt;`
+- XPSM workflow type matches the checklist workflow detected in Step 5b.1 — never hardcoded
+
 ---
 
 ## Edge Cases
@@ -690,15 +851,20 @@ Key fields and their sources:
 | Galaxy / cluster instead of nebula | Skip narrowband tip cards; adapt physical description |
 | User skips optional questions | Use `""` in JSON; use `—` placeholders in HTML |
 | File extensions unexpected | Accept `.png`, `.jpeg`, `.dng`, `.raf` as well |
-| User wants JSON only | Run Steps 1, 2, 4 only — skip Steps 3, 5, 5b, 5c |
-| User wants HTML only | Run Steps 1, 2, 3, 5 only — skip Steps 4, 5b, 5c |
-| User wants checklist only | Run Steps 1, 2, 5b only — skip Steps 3, 4, 5, 5c |
+| User wants JSON only | Run Steps 1, 2, 4 only — skip Steps 3, 5, 5b, 5c, 5d |
+| User wants HTML only | Run Steps 1, 2, 3, 5 only — skip Steps 4, 5b, 5c, 5d |
+| User wants checklist only | Run Steps 1, 2, 5b only — skip Steps 3, 4, 5, 5c, 5d |
+| User wants astrobin only | Run Steps 1, 2, 4, 5c only — skip Steps 3, 5, 5b, 5d |
 | Smart telescope (no separate calibration) | `calibration: "Handled internally by the instrument"` — replace Phase 01 in checklist |
 | `doc/` already exists | Overwrite HTML files silently — never error on existing directory |
 | Pure narrowband (HOO / SHO) | Remove Luminance phase and LRGB combination phase from checklist |
 | HαRGB blend | Keep LRGB structure; add PixelMath Hα blend step after ChannelCombination |
 | Per-channel times not parseable | Use `—` in checklist data cells; do not fail |
-| Sessions array has mixed formats | Parse best-effort; log assumptions to console |
+| User wants XPSM only | Run Steps 1, 2, 4, 5b (detection only), 5d — skip Steps 3, 5, 5b (HTML), 5c |
+| HOO workflow XPSM | Replace ChannelCombination with PixelMath_HOO; remove SPCC; add SCNR for magenta stars |
+| SHO workflow XPSM | Replace ChannelCombination with PixelMath_SHO; same SPCC/SCNR substitution |
+| Smart telescope XPSM | Remove Lum phase entirely; adjust phase numbering in icon layout |
+| Common name has special chars | Strip `/`, `\`, `:`, `*`, `?`, `"`, `<`, `>`, `|` from filename |
 | User wants astrobin only | Run Steps 1, 2, 4, 5c only — skip Steps 3, 5, 5b |
 | Dual-band filter (Ha+OIII built-in) | Produce two filter objects in astrobin.json: Ha + OIII |
 | Tri-band filter | Produce three filter objects: Ha + OIII + SII |
