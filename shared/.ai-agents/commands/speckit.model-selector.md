@@ -4,22 +4,22 @@ description: Select the best OpenRouter model for each SpecKit workflow step and
 
 # SpecKit Model Selector
 
-You are an AI agent that helps configure SpecKit workflow commands with the optimal AI model for each step, sourced from the live OpenRouter model catalog.
+You are an AI agent that helps configure SpecKit workflow command with the optimal AI model for each step, sourced from the live OpenRouter model catalog.
 
 Work through the steps below in order. Do **not** skip a step or proceed until the previous one is complete.
 
 ## Step 1 — Verify SpecKit is installed locally
 
-Check for the presence of SpecKit command files under `.opencode/commands/` in the current working directory.
+Check for the presence of SpecKit command files under `.opencode/command/` in the current working directory.
 
 Run:
 
 ```bash
-ls .opencode/commands/speckit.* 2>/dev/null || echo "NOT_FOUND"
+ls .opencode/command/speckit.* 2>/dev/null || echo "NOT_FOUND"
 ```
 
 - If the output is `NOT_FOUND` or the directory does not exist, **stop immediately** and tell the user:
-  > SpecKit commands are not present under `.opencode/commands/`. Please run `specify init . --integration opencode` first, then re-run this command.
+  > SpecKit command are not present under `.opencode/command/`. Please run `specify init . --integration opencode` first, then re-run this command.
 - If at least one `speckit.*` file is found, list the discovered files and proceed to Step 2.
 
 ## Step 2 — Read the SpecKit detailed workflow
@@ -32,15 +32,15 @@ https://github.com/github/spec-kit#-detailed-process
 
 Extract and summarise the **7 core workflow steps** with their associated SpecKit command:
 
-| # | Command | Purpose |
-|---|---------|---------|
-| 1 | `/speckit.constitution` | Establish project governing principles |
-| 2 | `/speckit.specify` | Create functional specifications (user stories, requirements) |
-| 3 | `/speckit.clarify` | Clarify gaps before planning (structured Q&A) |
-| 4 | `/speckit.plan` | Generate technical implementation plan |
-| 5 | *(plan validation — free prompt)* | Audit plan for missing pieces and over-engineering |
-| 6 | `/speckit.tasks` | Break plan into actionable, ordered, dependency-aware tasks |
-| 7 | `/speckit.implement` | Execute tasks and implement the feature |
+| #   | Command                           | Purpose                                                       |
+| --- | --------------------------------- | ------------------------------------------------------------- |
+| 1   | `/speckit.constitution`           | Establish project governing principles                        |
+| 2   | `/speckit.specify`                | Create functional specifications (user stories, requirements) |
+| 3   | `/speckit.clarify`                | Clarify gaps before planning (structured Q&A)                 |
+| 4   | `/speckit.plan`                   | Generate technical implementation plan                        |
+| 5   | _(plan validation — free prompt)_ | Audit plan for missing pieces and over-engineering            |
+| 6   | `/speckit.tasks`                  | Break plan into actionable, ordered, dependency-aware tasks   |
+| 7   | `/speckit.implement`              | Execute tasks and implement the feature                       |
 
 If the page cannot be fetched, use the canonical step list above and continue.
 
@@ -63,15 +63,15 @@ From the response, build a shortlist of **current frontier and mid-tier models**
 
 For **each of the 7 workflow steps**, evaluate the shortlisted models against the step's dominant cognitive demands:
 
-| Step | Dominant demands |
-|------|-----------------|
-| Constitution | Nuanced prose, governance writing, structured Markdown |
-| Specify | Long-context comprehension, user story authoring, structured output |
-| Clarify | Gap detection, logical coverage analysis, adversarial questioning |
-| Plan | Deep technical architecture, framework knowledge, multi-file design |
-| Validate plan | Audit mindset, contradiction detection, constraint checking |
-| Tasks | Structured decomposition, dependency graphs, exact file-path generation |
-| Implement | Agentic code execution, multi-file engineering, long-horizon autonomy |
+| Step          | Dominant demands                                                        |
+| ------------- | ----------------------------------------------------------------------- |
+| Constitution  | Nuanced prose, governance writing, structured Markdown                  |
+| Specify       | Long-context comprehension, user story authoring, structured output     |
+| Clarify       | Gap detection, logical coverage analysis, adversarial questioning       |
+| Plan          | Deep technical architecture, framework knowledge, multi-file design     |
+| Validate plan | Audit mindset, contradiction detection, constraint checking             |
+| Tasks         | Structured decomposition, dependency graphs, exact file-path generation |
+| Implement     | Agentic code execution, multi-file engineering, long-horizon autonomy   |
 
 Produce a **ranked list of 3 options** per step:
 
@@ -107,10 +107,10 @@ Repeat for all 7 steps, then display a summary confirmation table before proceed
 
 ## Step 5 — Write model metadata into each SpecKit command file
 
-For each step that maps to a real command file under `.opencode/commands/`:
+For each step that maps to a real command file under `.opencode/command/`:
 
-1. Locate the file: `.opencode/commands/<speckit-command>.md`
-   (e.g. `.opencode/commands/speckit.constitution.md`)
+1. Locate the file: `.opencode/command/<speckit-command>.md`
+   (e.g. `.opencode/command/speckit.constitution.md`)
 2. Read the file.
 3. Find the frontmatter block that begins with `---` and ends with `---`.
 4. Insert a `model:` field immediately after the `description:` line, on its own line, using this exact format:
@@ -130,7 +130,7 @@ For each step that maps to a real command file under `.opencode/commands/`:
 
 5. If a `model:` field already exists, **replace** its value with the new selection.
 6. Write the updated file back to disk.
-7. Confirm: `✓ Updated .opencode/commands/<filename>.md → model: <model_id>`
+7. Confirm: `✓ Updated .opencode/command/<filename>.md → model: <model_id>`
 
 For **Step 5 (plan validation)**, which has no dedicated command file, skip the write step and note:
 
@@ -159,9 +159,9 @@ is now configured to use the chosen models per step.
 
 ## Error handling
 
-| Situation | Action |
-|-----------|--------|
-| `OPENROUTER_API_KEY` not set or request fails | Abort with: *"OPENROUTER_API_KEY is not set or the API call failed. Export the variable and retry."* |
-| SpecKit commands not found in `.opencode/commands/` | Abort with the message from Step 1 |
-| A command file exists but has no frontmatter | Prepend a minimal frontmatter block (`---\ndescription: \nmodel: <id>\n---\n`) before the file body |
-| User selects [4] and provides an unknown model ID | Warn the user but still write the value as entered |
+| Situation                                         | Action                                                                                               |
+| ------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| `OPENROUTER_API_KEY` not set or request fails     | Abort with: _"OPENROUTER_API_KEY is not set or the API call failed. Export the variable and retry."_ |
+| SpecKit command not found in `.opencode/command/` | Abort with the message from Step 1                                                                   |
+| A command file exists but has no frontmatter      | Prepend a minimal frontmatter block (`---\ndescription: \nmodel: <id>\n---\n`) before the file body  |
+| User selects [4] and provides an unknown model ID | Warn the user but still write the value as entered                                                   |
