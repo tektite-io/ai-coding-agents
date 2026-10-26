@@ -17,7 +17,7 @@ Every `entrypoint` in it is a local file path.
 4. Never fetch anything from the internet for this catalog. If no skill
    matches, say so in one line and continue without one. Never invent a skill.
 5. If the index file is missing, tell the user to run
-   `/Users/jjmartres/Repositories/perso/ai-coding-agents/scripts/google-skills-gen-index.fish`, then continue without it.
+   `/Users/jjmartres/Repositories/perso/ai-coding-agents/scripts/google-skills-gen-index.sh`, then continue without it.
 6. Project conventions (AGENTS.md) take precedence over generic skill guidance.
 7. If a specific Google skill is already loaded and covers the task, use it
    directly.

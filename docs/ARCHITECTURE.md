@@ -319,7 +319,7 @@ Rather than checking ~129 official Google Cloud skills into `shared/.ai-agents/s
 flowchart TD
     upstream["github.com/google/skills (upstream)"]
     submodule["vendor/google-skills/\n(git submodule, pinned commit)"]
-    gen_script["scripts/google-skills-gen-index.fish\n(make gen-google-skills-index)"]
+    gen_script["scripts/google-skills-gen-index.sh\n(make gen-google-skills-index)"]
     index["generated/google-skills-index.local.json\n(git-ignored local catalog index)"]
 
     rule["shared/.ai-agents/rules/google-cloud.md\n(always-on GCP prompt nudge)"]

@@ -30,6 +30,7 @@
 - [Repository structure](#repository-structure)
 - [Stow packages](#stow-packages)
 - [Installation](#installation)
+- [Secrets configuration](#secrets-configuration)
 - [Make targets](#make-targets)
 - [Pre-commit hooks](#pre-commit-hooks)
 - [Development](#development)
@@ -59,12 +60,11 @@ Three [GNU Stow](https://www.gnu.org/software/stow/) packages, all targeting
 | [TypeScript](https://www.typescriptlang.org/) | pi-mono extension typechecking | Yes (`npm install -g typescript`) |
 | [pre-commit](https://pre-commit.com/) | Git hook framework | Optional |
 | [jq](https://jqlang.github.io/jq/) | JSON query engine (Google skills index) | Yes |
-| [Fish](https://fishshell.com/) | Shell runtime for Google skills scripts | Yes |
 
 **macOS:**
 
 ```bash
-brew install stow node pre-commit jq fish
+brew install stow node pre-commit jq
 npm install -g typescript
 ```
 
@@ -176,8 +176,8 @@ ai-coding-agents/
 │   └── google-skills/               # Pinned submodule: 125+ official Google Cloud skills
 │
 ├── scripts/
-│   ├── google-skills-gen-index.fish # Generates local index for on-demand Google skills
-│   ├── update-google-skills.fish    # Interactive updater for google-skills submodule
+│   ├── google-skills-gen-index.sh   # Generates local index for on-demand Google skills
+│   ├── update-google-skills.sh      # Interactive updater for google-skills submodule
 │   └── validate-jsonc.js
 ├── .pre-commit-config.yaml
 ├── .stowrc
@@ -239,6 +239,70 @@ make install-hooks
 
 After install, symlinks under `$HOME` point back into this repo. Edit files
 here; changes take effect immediately.
+
+## Secrets configuration
+
+This repo is public. **Never commit credentials** to `opencode.jsonc`, `cli.json`,
+or any other tracked file. OpenCode resolves secrets when it loads its config,
+using variable substitution:
+
+| Syntax | Source |
+|--------|--------|
+| `{env:VAR_NAME}` | An environment variable |
+| `{file:path/to/file}` | The contents of a file (relative to the config file, or an absolute/`~` path) |
+
+The deployed `opencode.jsonc` already uses file substitution for the MCP servers
+that need bearer tokens:
+
+```jsonc
+"cognee": {
+  "headers": { "Authorization": "Bearer {file:~/.secrets/opencode/cognee-token}" }
+},
+"github": {
+  "headers": { "Authorization": "Bearer {file:~/.secrets/opencode/github-token}" }
+}
+```
+
+### Set up the secret files
+
+Store tokens outside the repo, under `~/.secrets/opencode/`, with `600`
+permissions. These files are not managed by Stow and are never tracked by Git:
+
+```bash
+mkdir -p ~/.secrets/opencode
+chmod 700 ~/.secrets/opencode
+
+# Write each token without a trailing newline
+printf '%s' "$COGNEE_TOKEN" > ~/.secrets/opencode/cognee-token
+printf '%s' "$GITHUB_TOKEN" > ~/.secrets/opencode/github-token
+chmod 600 ~/.secrets/opencode/*
+
+# Verify permissions and that each file is non-empty
+stat -f '%Sp %N' ~/.secrets/opencode/*
+```
+
+Supply the token values however you prefer (1Password CLI, `pass`, a password
+manager export, or an exported shell variable). Avoid pasting tokens into the
+files with an editor when a command can write them instead.
+
+### Or use environment variables
+
+`{env:VAR_NAME}` works anywhere `{file:path}` does. If the variable is unset,
+OpenCode substitutes an **empty string**, so a missing token can silently become
+`Authorization: Bearer ` and fail only when the server is called. Prefer file
+substitution when the server needs the secret to work, and check the file exists
+before starting OpenCode:
+
+```bash
+test -s ~/.secrets/opencode/cognee-token && echo "cognee token present"
+test -s ~/.secrets/opencode/github-token && echo "github token present"
+```
+
+### Apply changes
+
+Secret file contents are read when OpenCode loads its config. Restart OpenCode
+after creating or rotating a token. `make restow` only re-links the tracked
+config files; it does not create or update anything under `~/.secrets/`.
 
 ## Make targets
 

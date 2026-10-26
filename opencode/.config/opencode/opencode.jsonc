@@ -1,113 +1,135 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "model": "google-vertex/gemini-3.8-flash",
-  "default_agent": "devops-engineer",
-  "agents": {
-    "title": {
-      "model": "google-vertex/gemini-3.8-flash",
-    },
-  },
-  "experimental": {
-    "policies": [
-      { "action": "provider.use", "resource": "*", "effect": "deny" },
-      {
-        "action": "provider.use",
-        "resource": "google-vertex",
-        "effect": "allow",
-      },
-      { "action": "provider.use", "resource": "openrouter", "effect": "allow" },
-      { "action": "provider.use", "resource": "calculon", "effect": "allow" },
-    ],
-  },
-  "providers": {
-    "google-vertex": {
-      "settings": {
-        "project": "{env:VERTEXAI_PROJECT_ID}",
-        "location": "{env:VERTEXAI_REGION}",
-      },
-      "models": {
-        "gemini-4-argon": {
-          "cost": [
-            {
-              "input": 2,
-              "output": 10,
-              "cache": {
-                "read": 0.1,
-                "write": 0,
-              },
-            },
-          ],
-        },
-        "gemini-3.8-flash": {
-          "cost": [
-            {
-              "input": 0.75,
-              "output": 3.75,
-              "cache": {
-                "read": 0.075,
-                "write": 0,
-              },
-            },
-          ],
-        },
-      },
-    },
-    "calculon": {
-      "name": "calculon",
-      "package": "@opencode/ai/providers/openai-compatible",
-      "settings": {
-        "baseURL": "http://calculon.local:8000/v1",
-        "apiKey": "{env:OMLX_API_KEY}",
-      },
-      "models": {
-        "Qwen2.5-Coder-14B-Instruct-4bit": {
-          "name": "Qwen2.5-Coder-14B-Instruct-4bit",
-          "capabilities": {
-            "tools": true,
-            "input": ["text"],
-            "output": ["text"],
-          },
-        },
-      },
-    },
-  },
-  "compaction": {
-    "auto": true,
-    "keep": {
-      "tokens": 15000,
-    },
-    "buffer": 20000,
-  },
-  "tool_output": {
-    "max_lines": 800,
-    "max_bytes": 32768,
-  },
-  "update": "auto",
-  "instructions": ["~/.ai-agents/rules/*.md"],
-  "share": "disabled",
-  "plugins": [
-    "./plugins/session-namer",
-    "./plugins/openrouter-credits",
-    "@rizal72/oc-coffee",
+
+  "policies": [
+    { "action": "provider.use", "resource": "*", "effect": "deny" },
+    { "action": "provider.use", "resource": "openrouter", "effect": "allow" },
+    { "action": "provider.use", "resource": "openai", "effect": "allow" },
+    { "action": "provider.use", "resource": "orcarouter", "effect": "allow" },
+    { "action": "provider.use", "resource": "llama.cpp", "effect": "allow" }
   ],
+
+  "providers": {
+    "orcarouter": {
+      "package": "aisdk:@ai-sdk/openai-compatible",
+      "name": "OrcaRouter",
+      "settings": {
+        "baseURL": "https://api.orcarouter.ai/v1"
+      },
+      "models": {
+        "auto": {
+          "name": "OrcaRouter Auto"
+        }
+      }
+    },
+
+    "openrouter": {
+      "models": {
+        "deepseek/deepseek-v4.1-flash:floor": {
+          "name": "DeepSeek V4.1 Flash Cheapest"
+        }
+      }
+    },
+
+    "llama.cpp": {
+      "package": "aisdk:@ai-sdk/openai-compatible",
+      "name": "llama-server (local)",
+      "settings": {
+        "baseURL": "http://127.0.0.1:8080/v1"
+      }
+    }
+  },
+
+  "default_agent": "plan",
+  "update": "auto",
+
+  "instructions": [
+    "~/.ai-agents/rules/*.md"
+  ],
+
+  "share": "disabled",
+
+  "plugins": [
+    "@sveltejs/opencode",
+    "opencode-websearch-addons",
+    "opencode-usage-quota-tracker",
+    "github:jadmadi/opencode-distill"
+  ],
+
+  "permissions": [
+    { "action": "read", "resource": ".env", "effect": "allow" },
+    { "action": "read", "resource": ".env.*", "effect": "allow" },
+    { "action": "read", "resource": ".env-*", "effect": "allow" },
+    { "action": "external_directory", "resource": "*", "effect": "allow" },
+    { "action": "shell", "resource": "git push *", "effect": "allow" },
+    { "action": "shell", "resource": "sudo *", "effect": "deny" },
+    { "action": "shell", "resource": "rm -rf /", "effect": "deny" },
+    { "action": "shell", "resource": "rm -rf /*", "effect": "deny" },
+    { "action": "shell", "resource": "rm -rf ~", "effect": "deny" },
+    { "action": "shell", "resource": "rm -rf ~/*", "effect": "deny" },
+    { "action": "shell", "resource": ":(){:|:&};:", "effect": "deny" }
+  ],
+
   "mcp": {
     "servers": {
-      "nibbler": {
-        "type": "remote",
-        "url": "{env:NIBBLER__MCP_URL}",
-        "headers": {
-          "Authorization": "Bearer {env:NIBBLER__MCP_TOKEN}",
-        },
-        "disabled": false,
+      "awslabs.aws-documentation-mcp-server": {
+        "type": "local",
+        "command": [
+          "uvx",
+          "awslabs.aws-documentation-mcp-server@latest"
+        ],
+        "environment": {
+          "FASTMCP_LOG_LEVEL": "ERROR"
+        }
       },
-      "oskar": {
-        "type": "remote",
-        "url": "{env:OSKAR__MCP_URL}",
-        "oauth": {
-          "client_id": "{env:OSKAR__MCP_CLIENT_ID}",
-        },
-        "disabled": true,
+
+      "chrome-devtools": {
+        "type": "local",
+        "command": [
+          "npx",
+          "-y",
+          "chrome-devtools-mcp@latest"
+        ]
       },
+
+      "gitnexus": {
+        "type": "local",
+        "command": [
+          "npx",
+          "-y",
+          "gitnexus",
+          "mcp"
+        ]
+      },
+
+      "codegraph": {
+        "type": "local",
+        "command": [
+          "codegraph",
+          "serve",
+          "--mcp"
+        ]
+      },
+      "cognee": {
+      // Shared durable memory (global_memory / project_<slug> /
+      // security_corpus) - see AGENTS.md's "Memory & Wiki" section.
+      // brought up with ENABLE_BACKEND_ACCESS_CONTROL=true, so this token is required.
+      "type": "remote",
+      "url": "http://localhost:8001/mcp",
+      "enabled": true,
+      "headers": {
+        "Authorization": "Bearer {file:~/.secrets/opencode/cognee-token}"
+      }
     },
-  },
+    "github": {
+      "type": "remote",
+      "url": "https://api.githubcopilot.com/mcp/",
+      "enabled": true,
+      "oauth": true
+      // "headers": {
+      //   "Authorization": "Bearer {file:~/.secrets/opencode/github-token}"
+      // }
+     }
+    }
+  }
 }

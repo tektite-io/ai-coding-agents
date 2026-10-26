@@ -15,7 +15,8 @@
   "animations": true,
   "plugins": [
     "./plugins/workspace-manager",
-    "./plugins/openrouter-credits"
+    "./plugins/openrouter-credits",
+    "@rashidrazak/opencode-status-line"
   ],
   "keybinds": {
     "prompt.queue": "return"

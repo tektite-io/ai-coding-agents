@@ -166,11 +166,11 @@ endif
 
 .PHONY: gen-google-skills-index
 gen-google-skills-index: ## Generate local index for Google Cloud skills
-	@./scripts/google-skills-gen-index.fish
+	@./scripts/google-skills-gen-index.sh
 
 .PHONY: update-google-skills
 update-google-skills: ## Check upstream diff and prompt to update Google Cloud skills submodule
-	@./scripts/update-google-skills.fish
+	@./scripts/update-google-skills.sh
 
 ##@ Utilities
 

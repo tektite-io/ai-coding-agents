@@ -1,0 +1,71 @@
+services:
+  # The shared Cognee instance behind both kb-security's `kb reindex` and
+  # every MCP client's remember/recall/forget (opencode, a harness, etc.).
+  # One instance, three datasets (global_memory, project_<slug>,
+  # security_corpus) -- not a separate Cognee per project.
+  cognee:
+    image: cognee/cognee:main
+    ports: ["8000:8000"]
+    environment:
+      # Real per-dataset isolation, not the feasibility-test shortcut.
+      # ENABLE_BACKEND_ACCESS_CONTROL=false (used during the three
+      # feasibility tests, see security-feasibility-test/cognee-docker-
+      # compose.yml) gives every dataset its own Kuzu+LanceDB store, but
+      # GRAPH_COMPLETION-style graph traversal can hop across datasets
+      # with it off -- that silently defeats the global_memory/
+      # project_<slug>/security_corpus split this whole setup depends on.
+      # Production always runs with it on.
+      ENABLE_BACKEND_ACCESS_CONTROL: "true"
+      DEFAULT_USER_PASSWORD: ${COGNEE_PASSWORD:?set a password}
+      # Deliberately NOT setting LLM_API_KEY. Cognee's own cognify stage
+      # uses an LLM internally to pull entities/relationships out of raw
+      # text into its knowledge graph -- but every security_corpus page
+      # cognify ever sees has already been through kb-security's own
+      # per-section extraction pipeline (first_pass_extraction on Bedrock/
+      # local Qwen3, see config/models.yaml) and arrives as a clean,
+      # already-structured card, not raw prose. The feasibility tests
+      # confirmed the bundled GLiNER + local embedding model handles that
+      # input fine with no key at all. Setting LLM_API_KEY here would add
+      # a second paid LLM dependency for marginal benefit on input that's
+      # already been pre-structured; add it back only if a direct A/B
+      # on cognify's own entity-extraction quality shows GLiNER missing
+      # something the input actually needed.
+    volumes: ["cognee_storage:/cognee-storage"]
+    profiles: ["api"]
+
+  cognee-mcp:
+    image: cognee/cognee-mcp:main
+    ports: ["8001:8000"]
+    environment:
+      TRANSPORT_MODE: http
+      API_URL: http://cognee:8000
+      API_TOKEN: ${COGNEE_API_TOKEN:?set a token, same value every client authenticates with}
+      # cognee-mcp forwards API_TOKEN to the *backend* Cognee API (not to
+      # incoming MCP clients -- this server has no auth check on its own
+      # /mcp endpoint, see MCP_ALLOWED_HOSTS below for the actual guard on
+      # that side). Without this, cognee-mcp's default auth scheme sends
+      # `Authorization: Bearer <API_TOKEN>` to the backend, which rejects
+      # it with 401 because API_TOKEN is a self-hosted API key, not a JWT
+      # from /api/v1/auth/login. x-api-key sends it as `X-Api-Key` instead,
+      # which is what the backend's /api/v1/auth/api-keys-issued keys
+      # actually are. Mint one by logging in as the default user
+      # (default_user@example.com / DEFAULT_USER_PASSWORD) and POSTing to
+      # /api/v1/auth/api-keys, then put the result in COGNEE_API_TOKEN here
+      # -- an openssl-rand string will authenticate nothing.
+      COGNEE_API_AUTH_SCHEME: x-api-key
+      # Every client (opencode, kb-security's own CogneeClient, a future
+      # harness) passes dataset_name explicitly on every call -- this is
+      # what the shared-memory setup across every client depends on, not
+      # an incidental default. Leaving this at its
+      # default (false, per-client auto-scoped datasets) would silently
+      # fragment "the same memory" into one dataset per client instead.
+      COGNEE_MCP_AGENT_SCOPED: "false"
+      # DNS-rebinding guard (see cognee-mcp's own README) -- required
+      # once anything reaches this over LAN/hostname rather than
+      # localhost. Add every host that will actually connect.
+      MCP_ALLOWED_HOSTS: "localhost:*,127.0.0.1:*,<your-lan-ip-or-host>:*"
+    depends_on: [cognee]
+    profiles: ["mcp"]
+
+volumes:
+  cognee_storage:

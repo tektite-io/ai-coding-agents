@@ -148,7 +148,7 @@ Implements an **on-demand access architecture** for Google Cloud skills. Instead
 ### Architecture & design
 
 - **Submodule catalog (`vendor/google-skills`)**: Pinned git submodule tracking `github.com/google/skills`. Located under `vendor/` strictly outside Stow packages to prevent context window saturation.
-- **Local index (`generated/google-skills-index.local.json`)**: A compact, machine-readable JSON catalog containing skill names, descriptions, and local absolute entrypoints (`SKILL.md`). Generated via `scripts/google-skills-gen-index.fish` (`make gen-google-skills-index`). Ignored by git to prevent machine-specific path contamination.
+- **Local index (`generated/google-skills-index.local.json`)**: A compact, machine-readable JSON catalog containing skill names, descriptions, and local absolute entrypoints (`SKILL.md`). Generated via `scripts/google-skills-gen-index.sh` (`make gen-google-skills-index`). Ignored by git to prevent machine-specific path contamination.
 - **Router skill (`shared/.ai-agents/skills/google-skills/SKILL.md`)**: A lightweight router that prompts the agent to search the local index with `jq` and load only the relevant skills into active context.
 
 ### Search and loading instructions
@@ -163,8 +163,8 @@ Implements an **on-demand access architecture** for Google Cloud skills. Instead
 
 ### Submodule lifecycle management
 
-- **Regenerate index**: `make gen-google-skills-index` runs `scripts/google-skills-gen-index.fish` to parse frontmatter from `vendor/google-skills/skills/cloud/` and rebuild `generated/google-skills-index.local.json`.
-- **Review and update upstream**: `make update-google-skills` runs `scripts/update-google-skills.fish` to fetch upstream changes, display commit logs and diff stats, and prompt for human confirmation before advancing the submodule pin.
+- **Regenerate index**: `make gen-google-skills-index` runs `scripts/google-skills-gen-index.sh` to parse frontmatter from `vendor/google-skills/skills/cloud/` and rebuild `generated/google-skills-index.local.json`.
+- **Review and update upstream**: `make update-google-skills` runs `scripts/update-google-skills.sh` to fetch upstream changes, display commit logs and diff stats, and prompt for human confirmation before advancing the submodule pin.
 
 ---
 

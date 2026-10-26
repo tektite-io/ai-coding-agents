@@ -1,35 +1,44 @@
-#!/usr/bin/env fish
-# scripts/google-skills-gen-index.fish
+#!/usr/bin/env bash
+# scripts/google-skills-gen-index.sh
 # Generates generated/google-skills-index.local.json with absolute local paths.
 
-set -l script_dir (status dirname)
-set -l repo_root (path resolve "$script_dir/..")
-set -l skills_dir "$repo_root/vendor/google-skills/skills/cloud"
-set -l output_dir "$repo_root/generated"
-set -l output_file "$output_dir/google-skills-index.local.json"
+set -euo pipefail
 
-if not command -v jq >/dev/null 2>&1
+script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+repo_root="$(cd "$script_dir/.." && pwd)"
+skills_dir="$repo_root/vendor/google-skills/skills/cloud"
+output_dir="$repo_root/generated"
+output_file="$output_dir/google-skills-index.local.json"
+
+if ! command -v jq >/dev/null 2>&1; then
     echo "Error: jq is required but not installed." >&2
     exit 1
-end
+fi
 
-if not test -d "$skills_dir"
+if [ ! -d "$skills_dir" ]; then
     echo "Error: Submodule directory not found at $skills_dir" >&2
     echo "Please run: git submodule update --init --recursive" >&2
     exit 1
-end
+fi
 
 mkdir -p "$output_dir"
-set -l temp_file (mktemp)
+temp_file="$(mktemp)"
+trap 'rm -f "$temp_file"' EXIT
 
-for skill_file in (find "$skills_dir" -mindepth 2 -maxdepth 2 -name "SKILL.md" | sort)
-    set -l skill_dir (path dirname "$skill_file")
-    set -l skill_name (path basename "$skill_dir")
+while IFS= read -r skill_file; do
+    if [ -z "$skill_file" ]; then
+        continue
+    fi
+
+    skill_dir="$(dirname "$skill_file")"
+    skill_name="$(basename "$skill_dir")"
 
     # Exclude finding-google-skills
-    test "$skill_name" = "finding-google-skills"; and continue
+    if [ "$skill_name" = "finding-google-skills" ]; then
+        continue
+    fi
 
-    set -l parsed (awk '
+    parsed="$(awk '
     BEGIN { in_fm=0; name=""; desc=""; in_desc=0 }
     /^---$/ {
       if (in_fm == 0) { in_fm=1; next }
@@ -55,20 +64,19 @@ for skill_file in (find "$skills_dir" -mindepth 2 -maxdepth 2 -name "SKILL.md" |
     END {
       printf "%s\n%s\n", name, desc
     }
-    ' "$skill_file")
+    ' "$skill_file")"
 
-    set -l s_name $parsed[1]
-    if test -z "$s_name"
-        set s_name "$skill_name"
-    end
-    set -l s_desc (string join " " $parsed[2..-1])
+    s_name="$(printf '%s\n' "$parsed" | head -n 1)"
+    if [ -z "$s_name" ]; then
+        s_name="$skill_name"
+    fi
+    s_desc="$(printf '%s\n' "$parsed" | tail -n +2 | tr '\n' ' ' | sed -e 's/[[:space:]]*$//')"
 
     jq -n --arg name "$s_name" --arg desc "$s_desc" --arg entry "$skill_file" \
       '{name: $name, description: $desc, entrypoint: $entry}' >> "$temp_file"
-end
+done < <(find "$skills_dir" -mindepth 2 -maxdepth 2 -name "SKILL.md" | sort)
 
 jq -s '{skills: .}' "$temp_file" > "$output_file"
-rm -f "$temp_file"
 
-set -l total (jq '.skills | length' "$output_file")
+total="$(jq '.skills | length' "$output_file")"
 echo "✓ Generated $output_file with $total skills"

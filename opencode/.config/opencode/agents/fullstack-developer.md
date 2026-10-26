@@ -1,0 +1,1 @@
+/Users/alex/.ai-agents/agents/01-core/fullstack-developer.md
