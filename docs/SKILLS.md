@@ -9,8 +9,6 @@ Skills are reusable instruction packs that inject domain-specific guidance into 
 | Skill | Description | Compatibility |
 |-------|-------------|---------------|
 | [asdf](#asdf) | Universal version manager — installs, configures, and troubleshoots asdf and `.tool-versions` files across all shells and runtimes. | opencode, pi-mono |
-| [asd-ste100](#asd-ste100) | Simplified Technical English (ASD-STE100) — rewrites ambiguous instructions, tool descriptions, and agent messages for error-free parsing. | opencode, pi-mono |
-| [astro-dso-doc](#astro-dso-doc) | Bootstrap DSO astrophotography projects and generate PixInsight docs, checklists, AstroBin exports, and process icons. | opencode, pi-mono |
 | [content-research-writer](#content-research-writer) | Collaborative writing assistant that conducts research, adds citations, refines outlines, and gives section-by-section feedback. | opencode, pi-mono |
 | [corp-branding](#corp-branding) | Apply discrete Fintecture corporate branding (logo, navy/mint palette, confidentiality tagline, footer mark) to HTML documents. | opencode, pi-mono |
 | [corp-operations-infrastructure](#corp-operations-infrastructure) | Reference for Fintecture's internal Operations & Infrastructure policies (change management, vulnerability/patch SLAs, logs, asset lifecycle). | opencode, pi-mono |
@@ -18,9 +16,6 @@ Skills are reusable instruction packs that inject domain-specific guidance into 
 | [document-code](#document-code) | Apply Google Style documentation standards to Python, Go, TypeScript, and Terraform code. | opencode, pi-mono |
 | [document-project](#document-project) | Generate comprehensive project documentation structures: README, ARCHITECTURE, USER_GUIDE, DEVELOPER_GUIDE, and CONTRIBUTING. | opencode, pi-mono |
 | [file-organizer](#file-organizer) | Intelligently organizes files and folders by understanding context, finding duplicates, and suggesting better structures. | opencode, pi-mono |
-| [gcloud](#gcloud) | Safety-critical validation, guardrails, and data reduction for `gcloud` CLI operations across GCP services. | opencode, pi-mono |
-| [glab](#glab) | Expert guidance for using the GitLab CLI (`glab`) to manage issues, MRs, pipelines, and repositories. | opencode, pi-mono |
-| [google-skills](#google-skills) | On-demand router loading official Google Cloud skills (125+ services) from a local pinned catalog without context bloat. | opencode, pi-mono |
 | [graphify](#graphify) | Turn any corpus (code, docs, papers) into a clustered knowledge graph with interactive HTML, GraphRAG JSON, and audit reports. | opencode, pi-mono |
 | [httpie](#httpie) | Make HTTP requests, test APIs, call REST endpoints, and debug web services using the HTTPie CLI (`http` command). | opencode, pi-mono |
 | [humanizer](#humanizer) | Remove signs of AI-generated writing from text to make it sound natural and human-written. | opencode, pi-mono |
@@ -35,6 +30,7 @@ Skills are reusable instruction packs that inject domain-specific guidance into 
 | [nibbler](#nibbler) | Interact with Fintecture's GCP companion on Cloud Run for alert investigation, JIT PAM access, runbooks, and IaC validation. | opencode, pi-mono |
 | [reachy-mini-sdk](#reachy-mini-sdk) | Programming guide for the Reachy Mini robot using the Python SDK and REST API. | opencode, pi-mono |
 | [security-audit](#security-audit) | Security guidance and vulnerability review for codebases, APIs, runtimes, and models. | opencode, pi-mono |
+| [vibesec](#vibesec) | Secure coding guide for web applications — access control, injection, authentication, and other common vulnerability classes. | opencode, pi-mono |
 | [work-on-ticket](#work-on-ticket) | Fetch Jira ticket details, create a named branch, and initiate task planning. | opencode, pi-mono |
 | [writing-clearly-and-concisely](#writing-clearly-and-concisely) | Apply Strunk's timeless rules for clearer, stronger prose in documentation, commits, and UI text. | opencode, pi-mono |
 
@@ -45,22 +41,6 @@ Skills are reusable instruction packs that inject domain-specific guidance into 
 **Trigger:** Any mention of asdf, `.tool-versions` files, managing runtime versions, or migrating from nvm/pyenv/rbenv/goenv/tfenv.
 
 Provides a complete reference for installing and configuring the asdf universal version manager. Covers plugin management (`asdf plugin add`), version installation, the `.tool-versions` file format, shell configuration for Bash/Zsh/Fish, shim troubleshooting, and the `.asdfrc` options. Also explains the modern `asdf set` API introduced in v0.15+ and how to onboard an existing project with `asdf install`.
-
----
-
-## asd-ste100
-
-**Trigger:** "disambiguate", "STE100 rewrite", "apply Simplified Technical English", "plain-language rewrite", "controlled-language rewrite", or when English text must be parsed without human clarification (tool descriptions, error messages, inter-agent instructions, system prompts, status reports).
-
-Rewrites dense, ambiguous English into ASD-STE100 Simplified Technical English (Issue 9) principles to ensure AI agents and downstream systems parse instructions without misreading. Enforces active voice, short sentences (≤20 words for instructions, ≤25 for descriptions), simple tenses, no phrasal verbs, no semicolons, bounded noun clusters (≤3 words), explicit subjects/articles, and strict hedge/modality preservation. Supports two operational modes: **Strict** (for tool descriptions, error messages, procedures) and **STE-flavored** (for READMEs, PRs, changelogs). Includes a deterministic Python linter (`ste-lint.py`) for automated structural checks.
-
----
-
-## astro-dso-doc
-
-**Trigger:** Astrophotography, bootstrapping DSO project folders, DSO targets (NGC, IC, Messier, Sharpless), PixInsight project documentation, observation reports, AstroBin post exports.
-
-Bootstraps deep-sky object (DSO) astrophotography projects from raw acquisition frames and generates complete deliverables: an interactive HTML documentation page with theme switching, a filter-adapted PixInsight processing checklist, AstroBin upload JSON, PixInsight process icons (XPSM), and project description text.
 
 ---
 
@@ -109,62 +89,6 @@ Provides working command templates for every `datadog` CLI subcommand: `logs sea
 **Trigger:** Organizing files and folders, finding duplicates, cleaning up a digital workspace, or automating file management tasks.
 
 Understands file context to suggest better directory structures, identify duplicate files, and automate cleanup tasks. Reduces cognitive load from a cluttered file system without moving or deleting anything you did not explicitly approve.
-
----
-
-## gcloud
-
-**Trigger:** Planning, generating, constructing, proposing, describing, or executing any `gcloud` CLI commands across Google Cloud Platform services.
-
-Direct symlink (`shared/.ai-agents/skills/gcloud` → `../../../vendor/google-skills/skills/cloud/gcloud`) exposing the official Google Cloud `gcloud` safety guardrail skill. Unlike the other ~129 specialized Google Cloud skills that are queried on demand, `gcloud` is directly linked into OpenCode so its safety-critical guardrails are active at all times.
-
-### Safety-critical guardrails & validation
-
-- **Mandatory leaf-level syntax validation**: All static training knowledge of `gcloud` commands, flags, and arguments is treated as potentially stale. Before proposing flags, executing commands, or drafting plans, the agent **must** run `gcloud help <leaf_command>` (e.g. `gcloud help compute instances create`). Validation is strictly non-transitive: parent group help (e.g. `gcloud help compute`) is never sufficient.
-- **Mandatory 4-step execution plan**:
-  1. **Step 1 — Syntax validation**: Execute `gcloud help <leaf_command>`.
-  2. **Step 2 — Parameter verification**: Confirm required and optional flags, and verify whether `--dry-run` or `--validate-only` is supported.
-  3. **Step 3 — Dry-run proposal**: Propose a `--dry-run` or `--validate-only` command invocation first if supported.
-  4. **Step 4 — Command proposal & authorization**: If a command is on the prohibited/destructive operations list, autonomous execution is strictly forbidden and explicit user authorization is required.
-- **Forbidden web search fallback**: The agent is explicitly prohibited from searching the web for `gcloud` syntax. `gcloud help <leaf_command>` is the sole authorized authority.
-- **Data reduction**: Enforces context-saving flags (`--format`, `--filter`, `--limit`) to keep CLI outputs compact and prevent context window exhaustion.
-
----
-
-## glab
-
-**Trigger:** Any interaction with GitLab resources — issues, merge requests, CI/CD pipelines, repositories — from the command line.
-
-Expert guidance for the `glab` CLI. Covers creating and reviewing MRs, managing issues, checking pipeline status, cloning repositories, and performing GitLab operations without leaving the terminal. Includes common patterns for day-to-day GitLab workflows.
-
----
-
-## google-skills
-
-**Trigger:** Finding and loading official Google Cloud skills (GKE, Vertex AI, BigQuery, Cloud Run, Cloud SQL, Cloud Build, Cloud Monitoring, Cloud Logging, IAM, VPC networking, Cloud Storage, Filestore, SLO alerting, etc.) at the start of any task touching a Google Cloud product.
-
-Implements an **on-demand access architecture** for Google Cloud skills. Instead of exposing all ~129 skills directly inside the Stow packages (which would severely bloat the LLM context window and degrade tool calling), the repository vendors official Google Cloud skills externally and routes them locally on demand.
-
-### Architecture & design
-
-- **Submodule catalog (`vendor/google-skills`)**: Pinned git submodule tracking `github.com/google/skills`. Located under `vendor/` strictly outside Stow packages to prevent context window saturation.
-- **Local index (`generated/google-skills-index.local.json`)**: A compact, machine-readable JSON catalog containing skill names, descriptions, and local absolute entrypoints (`SKILL.md`). Generated via `scripts/google-skills-gen-index.sh` (`make gen-google-skills-index`). Ignored by git to prevent machine-specific path contamination.
-- **Router skill (`shared/.ai-agents/skills/google-skills/SKILL.md`)**: A lightweight router that prompts the agent to search the local index with `jq` and load only the relevant skills into active context.
-
-### Search and loading instructions
-
-1. **Query by keyword**: The agent filters the catalog on disk using `jq` without reading the full index into context:
-   ```bash
-   jq -r '.skills[] | select((.name+" "+.description)|test("KEYWORD1|KEYWORD2";"i")) | "\(.name)\t\(.entrypoint)"' generated/google-skills-index.local.json
-   ```
-2. **Shortlist specific skills**: The agent inspects matched descriptions and shortlists at most **3 skills**, prioritizing the most specific to the current task.
-3. **Load from disk**: The agent reads the local `SKILL.md` from the resolved entrypoint path on disk and adopts its domain-specific guidelines.
-4. **Offline and deterministic**: All skill resolutions occur locally from disk. Network fetches are prohibited. If no skill matches, the agent proceeds cleanly without hallucinating skills.
-
-### Submodule lifecycle management
-
-- **Regenerate index**: `make gen-google-skills-index` runs `scripts/google-skills-gen-index.sh` to parse frontmatter from `vendor/google-skills/skills/cloud/` and rebuild `generated/google-skills-index.local.json`.
-- **Review and update upstream**: `make update-google-skills` runs `scripts/update-google-skills.sh` to fetch upstream changes, display commit logs and diff stats, and prompt for human confirmation before advancing the submodule pin.
 
 ---
 
@@ -285,6 +209,14 @@ Covers the Python SDK v1.2.6 and REST API for the Reachy Mini robot. Includes SD
 **Trigger:** Security questions, focused vulnerability reviews, vulnerability research, security audits, or penetration testing requests.
 
 Provides a comprehensive, defensive, source-first security audit and vulnerability review workflow. Covers 11 attack classes (binary/memory safety, AI/LLM/agent trust, web protocols and auth, client-side UI, supply chain, cloud/deployment, IPC, data lifecycle, resource exhaustion, and messaging). Features dual operating modes (guidance vs. full audit), deterministic coverage ledgers, and automated CLI validators (`validate-findings.cjs`, `validate-coverage-ledger.cjs`) enforcing strict schema integrity.
+
+---
+
+## vibesec
+
+**Trigger:** Working on any web application, or when a user requests a scan or audit to ensure security best practices are followed.
+
+Provides a comprehensive secure coding guide for web applications, written from a bug hunter's perspective. Covers access control, injection flaws, authentication and session management, cryptographic failures, and other common vulnerability classes, with defense-in-depth, fail-secure, least-privilege, input-validation, and output-encoding principles.
 
 ---
 
