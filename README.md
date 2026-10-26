@@ -213,8 +213,8 @@ search, session management, git checkpoints, usage tracking, and more).
 ## Installation
 
 ```bash
-# Clone (include submodules)
-git clone --recurse-submodules https://github.com/jjmartres/ai-coding-agents.git
+# Clone the tektite-io repository on the opencode-tektite branch (include submodules)
+git clone --recurse-submodules --branch opencode-tektite https://github.com/tektite-io/ai-coding-agents.git
 cd ai-coding-agents
 
 # Stow all packages, init submodules, and create shared symlinks
@@ -370,7 +370,7 @@ pre-commit run markdownlint --all-files
 ### Updating configuration
 
 ```bash
-git pull origin main
+git pull origin opencode-tektite
 make restow
 ```
 
