@@ -44,7 +44,7 @@ Three [GNU Stow](https://www.gnu.org/software/stow/) packages, all targeting
 `$HOME`, that deploy:
 
 - **103 agent persona files** shared between opencode and pi-mono
-- **29 reusable skill packs** covering diagrams, code docs, Jira, Datadog, robotics, Google Cloud, and more (plus 125+ on-demand official Google Cloud skills)
+- **29 reusable skill packs** covering diagrams, code docs, Jira, Datadog, robotics, web security, and more
 - **18 slash commands** for common workflows (worktree isolation, commit, review, test, speckit, …)
 - **opencode-specific** configuration (migrated natively to OpenCode V2): `opencode.jsonc`, `cli.json`, MCP servers, plugins
 - **pi-mono-specific** configuration: settings, models, TypeScript extensions
@@ -59,7 +59,7 @@ Three [GNU Stow](https://www.gnu.org/software/stow/) packages, all targeting
 | [Node.js](https://nodejs.org/) v18+ | JSONC validation script | Yes |
 | [TypeScript](https://www.typescriptlang.org/) | pi-mono extension typechecking | Yes (`npm install -g typescript`) |
 | [pre-commit](https://pre-commit.com/) | Git hook framework | Optional |
-| [jq](https://jqlang.github.io/jq/) | JSON query engine (Google skills index) | Yes |
+| [jq](https://jqlang.github.io/jq/) | JSON query engine | Yes |
 
 **macOS:**
 
@@ -107,7 +107,6 @@ ai-coding-agents/
 │       │   └── worktree.md          # Unified worktree command router
 │       ├── rules/
 │       │   ├── git-worktree.md      # Worktree isolation & session relocation
-│       │   ├── google-cloud.md      # Router rule for Google Cloud skills
 │       │   └── memory-bank.md
 │       ├── scripts/                 # Shared helper utilities
 │       │   └── match-agent.js       # Dynamic fuzzy agent matching with alias & typo tolerance
@@ -122,9 +121,7 @@ ai-coding-agents/
 │           ├── document-code/
 │           ├── document-project/
 │           ├── file-organizer/
-│           ├── gcloud/              # Direct symlink to vendor/google-skills/.../gcloud (guardrail)
 │           ├── glab/
-│           ├── google-skills/       # On-demand router for official Google Cloud skills
 │           ├── graphify/
 │           ├── httpie/
 │           ├── humanizer/
@@ -172,12 +169,7 @@ ai-coding-agents/
 │           ├── tps.ts
 │           └── usage.ts
 │
-├── vendor/                          # Submodules outside Stow (avoids context bloat)
-│   └── google-skills/               # Pinned submodule: 125+ official Google Cloud skills
-│
 ├── scripts/
-│   ├── google-skills-gen-index.sh   # Generates local index for on-demand Google skills
-│   ├── update-google-skills.sh      # Interactive updater for google-skills submodule
 │   └── validate-jsonc.js
 ├── .pre-commit-config.yaml
 ├── .stowrc
@@ -230,7 +222,7 @@ search, session management, git checkpoints, usage tracking, and more).
 git clone --recurse-submodules https://github.com/jjmartres/ai-coding-agents.git
 cd ai-coding-agents
 
-# Stow all packages, init submodules, generate local Google skills index, and create shared symlinks
+# Stow all packages, init submodules, and create shared symlinks
 make install
 
 # (Optional) Install pre-commit hooks
@@ -318,10 +310,6 @@ Installation
   uninstall            Remove shared symlinks + unstow all packages
   restow               Re-run stow (use after adding/removing files)
 
-Google Cloud Skills
-  gen-google-skills-index Generate local index for Google Cloud skills
-  update-google-skills Check upstream diff and prompt to update Google Cloud skills submodule
-
 Utilities
   check                Verify setup (directories, stow binary, .stowrc)
   status               Show linked packages and shared symlinks state
@@ -365,22 +353,6 @@ symlinked.
 
 Create a subdirectory under `shared/.ai-agents/skills/` with a `SKILL.md`
 entry point. Same as agents: no re-stowing needed.
-
-### Updating Google Cloud skills
-
-Official Google Cloud skills are vendored as a pinned git submodule in `vendor/google-skills` (~129 skills). To inspect upstream changes and update the pin safely:
-
-```bash
-make update-google-skills
-```
-
-This interactive script fetches upstream, displays commit history and diff statistics, and requests explicit user confirmation before advancing the submodule pointer. Once confirmed, it automatically regenerates the local search index (`generated/google-skills-index.local.json`).
-
-To regenerate the index manually:
-
-```bash
-make gen-google-skills-index
-```
 
 ### Adding or removing files in a stow package
 
