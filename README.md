@@ -44,7 +44,7 @@ Three [GNU Stow](https://www.gnu.org/software/stow/) packages, all targeting
 `$HOME`, that deploy:
 
 - **103 agent persona files** shared between opencode and pi-mono
-- **29 reusable skill packs** covering diagrams, code docs, Jira, Datadog, robotics, web security, and more
+- **22 reusable skill packs** covering diagrams, code docs, Jira, Datadog, robotics, web security, and more
 - **18 slash commands** for common workflows (worktree isolation, commit, review, test, speckit, …)
 - **opencode-specific** configuration (migrated natively to OpenCode V2): `opencode.jsonc`, `cli.json`, MCP servers, plugins
 - **pi-mono-specific** configuration: settings, models, TypeScript extensions
@@ -110,18 +110,13 @@ ai-coding-agents/
 │       │   └── memory-bank.md
 │       ├── scripts/                 # Shared helper utilities
 │       │   └── match-agent.js       # Dynamic fuzzy agent matching with alias & typo tolerance
-│       └── skills/                  # Reusable skill packs
+│       └── skills/                  # Reusable skill packs (22)
 │           ├── asdf/
-│           ├── asd-ste100/
-│           ├── astro-dso-doc/
 │           ├── content-research-writer/
-│           ├── corp-branding/
-│           ├── corp-operations-infrastructure/
 │           ├── datadog/
 │           ├── document-code/
 │           ├── document-project/
 │           ├── file-organizer/
-│           ├── glab/
 │           ├── graphify/
 │           ├── httpie/
 │           ├── humanizer/
@@ -133,9 +128,9 @@ ai-coding-agents/
 │           ├── mcp-builder/
 │           ├── meeting-insights-analyzer/
 │           ├── mermaid-diagrams/
-│           ├── nibbler/
 │           ├── reachy-mini-sdk/     # git submodule
 │           ├── security-audit/      # Source-first security review, attack classes & ledger validators
+│           ├── vibesec/             # Secure coding guidance for web applications
 │           ├── work-on-ticket/
 │           └── writing-clearly-and-concisely/
 │
