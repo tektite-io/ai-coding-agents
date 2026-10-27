@@ -8,7 +8,6 @@ Apply the following skills where relevant:
 
 - document-code
 - document-project
-- glab
 - humanizer
 - karpathy-guidelines
 - mermaid-diagrams

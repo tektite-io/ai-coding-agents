@@ -49,13 +49,6 @@ Production instance: `cognee-docker-compose.yml` in
   patterns.
 - `project_<slug>` — tied to one codebase: its architecture decisions,  
   its bugs and root causes, its subsystem wiki, its conventions.
-- `security_corpus` — read-only reference knowledge (techniques, tools,  
-  detections, playbooks, lessons learned) extracted from third-party  
-  writeups/docs by the `kb-security` tool. Never written to directly by an  
-  agent — only `recall`ed from when working on anything security-related.  
-  Treat it like a library, not a notebook: if something durable comes out  
-  of a security task, it still goes to `global_memory`/`project_<slug>` as  
-  usual, not here.
 
 Compute `<slug>` once per session, deterministically, from repo identity —  
 **never from the local absolute path** (it differs per machine):
@@ -145,6 +138,17 @@ only the variable name:
 ```text
 The service requires OPENROUTER_API_KEY. The value must not be stored.
 ```
+
+### Never commit credentials
+
+Never commit credential files or secret values to git — `.env`, `.env.*`,  
+`*.pem`, `*.key`, `credentials.json`, `secrets.*`, service-account JSON, and  
+similar. Keep them in `.gitignore`; commit only variable names or example  
+files. Before every commit, check `git status` and `git diff --cached` for  
+these paths. If a credential file was committed, treat the secret as  
+compromised: rotate it, purge it from history (for example  
+`git filter-repo --path <file> --invert-paths`), force-push the rewritten  
+branch, and delete local backups. Never rely on deleting it in a later commit.
 
 ### Before writing: dedupe and decide
 
@@ -256,8 +260,6 @@ Use codegraph for **structural** questions — what calls what, what would break
 ### If `.codegraph/` doesn't exist
 
 The MCP server returns "not initialized." Ask the user: *"I notice this project doesn't have CodeGraph initialized. Want me to run* `codegraph init -i` *to build the index?"*  
-  
-
 
 # RTK (Rust Token Killer) - Token-Optimized Commands
 
