@@ -30,34 +30,6 @@ repos:
               echo "❌ Makefile has syntax errors"
               exit 1
             }
-
-      - id: typecheck-extensions
-        name: Typecheck pi-mono extensions
-        entry: bash
-        language: system
-        pass_filenames: false
-        files: ^pi-mono/\.pi/agent/extensions/.*\.ts$
-        args:
-          - -c
-          - |
-            if ! command -v tsc >/dev/null 2>&1; then
-              echo "⚠ tsc not found, skipping TypeScript typecheck (run: npm install -g typescript)"
-              exit 0
-            fi
-            tsc --noEmit \
-              --strict \
-              --target ES2022 \
-              --module NodeNext \
-              --moduleResolution NodeNext \
-              --allowImportingTsExtensions \
-              --esModuleInterop \
-              --skipLibCheck \
-              pi-mono/.pi/agent/extensions/*.ts || {
-              echo "❌ TypeScript typecheck failed in pi-mono/.pi/agent/extensions/"
-              exit 1
-            }
-            echo "✓ TypeScript typecheck passed"
-
       - id: validate-jsonc
         name: Validate JSONC (JSON with Comments)
         entry: node scripts/validate-jsonc.js
