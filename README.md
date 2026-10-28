@@ -13,16 +13,6 @@
 
 ---
 
-> **Migration notice**
->
-> I am migrating from **opencode** to **pi-mono**. This repository replaces
-> [jjmartres/opencode](https://github.com/jjmartres/opencode), which is now
-> archived and read-only. During the transition both agent tools are supported
-> here. This is the long-term home for all shared agent configuration going
-> forward.
-
----
-
 ## Table of Contents
 
 - [What this repo is](#what-this-repo-is)
@@ -45,7 +35,7 @@ Three [GNU Stow](https://www.gnu.org/software/stow/) packages, all targeting
 
 - **103 agent persona files** shared between opencode and pi-mono
 - **22 reusable skill packs** covering diagrams, code docs, Jira, Datadog, robotics, web security, and more
-- **18 slash commands** for common workflows (worktree isolation, commit, review, test, speckit, …)
+- **15 slash commands** for common workflows (worktree isolation, commit, review, test, speckit, …)
 - **opencode-specific** configuration (migrated natively to OpenCode V2): `opencode.jsonc`, `cli.json`, MCP servers, plugins
 - **pi-mono-specific** configuration: settings, models, TypeScript extensions
 
@@ -55,7 +45,6 @@ Three [GNU Stow](https://www.gnu.org/software/stow/) packages, all targeting
 |------|---------|----------|
 | [GNU Stow](https://www.gnu.org/software/stow/) | Symlink farm manager | Yes |
 | [opencode](https://opencode.ai) | AI coding agent (V2 native) | If using the `opencode` package |
-| [pi-mono](https://github.com/mariozechner/pi) | AI coding agent | If using the `pi-mono` package |
 | [Node.js](https://nodejs.org/) v18+ | JSONC validation script | Yes |
 | [TypeScript](https://www.typescriptlang.org/) | pi-mono extension typechecking | Yes (`npm install -g typescript`) |
 | [pre-commit](https://pre-commit.com/) | Git hook framework | Optional |
@@ -137,36 +126,16 @@ ai-coding-agents/
 ├── opencode/                        # Stow package 2 — opencode-specific (OpenCode V2 native)
 │   └── .config/opencode/
 │       ├── opencode.jsonc           # Server & agent config (providers, compaction, default_agent)
-│       ├── cost-guard.config.jsonc
 │       ├── cli.json                 # Terminal & TUI config (replaces legacy V1 tui.jsonc)
 │       ├── plugins/                 # OpenCode TUI plugins
-│       │   └── workspace-manager/   # Recency-based workspace switcher & sidebar session monitor
+│       │   ├── workspace-manager/   # Recency-based workspace switcher & sidebar session monitor
+│       │   ├── openrouter-credits/
+│       │   └── session-namer/
 │       └── themes/                  # Theme documentation (Catppuccin bundled natively in V2)
 │
-├── pi-mono/                         # Stow package 3 — pi-mono-specific
-│   └── .pi/agent/
-│       ├── settings.json
-│       ├── models.json
-│       ├── auth.json
-│       ├── themes/
-│       └── extensions/              # TypeScript extensions
-│           ├── agents.ts
-│           ├── aliases.ts
-│           ├── git-checkpoint.ts
-│           ├── permission-gate.ts
-│           ├── piline.ts
-│           ├── protected-paths.ts
-│           ├── rules.ts
-│           ├── sessions-management.ts
-│           ├── skills-searcher.ts
-│           ├── skills.ts
-│           ├── todo.ts
-│           ├── tps.ts
-│           └── usage.ts
 │
 ├── scripts/
 │   └── validate-jsonc.js
-├── .pre-commit-config.yaml
 ├── .stowrc
 └── Makefile
 ```
@@ -238,8 +207,6 @@ using variable substitution:
 | `{env:VAR_NAME}` | An environment variable |
 | `{file:path/to/file}` | The contents of a file (relative to the config file, or an absolute/`~` path) |
 
-The deployed `opencode.jsonc` already uses file substitution for the MCP servers
-that need bearer tokens:
 
 ```jsonc
 "cognee": {
@@ -351,7 +318,7 @@ entry point. Same as agents: no re-stowing needed.
 
 ### Adding or removing files in a stow package
 
-After adding or deleting files in `opencode/` or `pi-mono/`:
+After adding or deleting files in `opencode/`:
 
 ```bash
 make restow

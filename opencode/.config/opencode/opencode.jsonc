@@ -6,6 +6,7 @@
     { "action": "provider.use", "resource": "openrouter", "effect": "allow" },
     { "action": "provider.use", "resource": "openai", "effect": "allow" },
     { "action": "provider.use", "resource": "orcarouter", "effect": "allow" },
+    { "action": "provider.use", "resource": "amazon-bedrock", "effect": "allow" },
     { "action": "provider.use", "resource": "llama.cpp", "effect": "allow" }
   ],
 
@@ -36,6 +37,22 @@
       "name": "llama-server (local)",
       "settings": {
         "baseURL": "http://127.0.0.1:8080/v1"
+      }
+    },
+
+    "amazon-bedrock": {
+      "settings": {
+        "region": "us-west-2",
+        "profile": "genai-dev"
+      }
+    },
+    "openai": {
+      "models": {
+        "gpt-daybreak-blue-latest": {
+          "name": "GPT Daybreak Blue",
+          "reasoning": true,
+          "tool_call": true
+        }
       }
     }
   },
@@ -111,25 +128,24 @@
         ]
       },
       "cognee": {
-      // Shared durable memory (global_memory / project_<slug> /
-      // security_corpus) - see AGENTS.md's "Memory & Wiki" section.
-      // brought up with ENABLE_BACKEND_ACCESS_CONTROL=true, so this token is required.
-      "type": "remote",
-      "url": "http://localhost:8001/mcp",
-      "enabled": true,
-      "headers": {
-        "Authorization": "Bearer {file:~/.secrets/opencode/cognee-token}"
+        // Shared durable memory (global_memory / project_<slug> /
+        // security_corpus) - see AGENTS.md's "Memory & Wiki" section.
+        // brought up with ENABLE_BACKEND_ACCESS_CONTROL=true, so this token is required.
+        "type": "remote",
+        "url": "http://localhost:8001/mcp",
+        "headers": {
+          "Authorization": "Bearer {file:~/.secrets/opencode/cognee-token}"
+        }
+      },
+
+      "github": {
+        "type": "remote",
+        "url": "https://api.githubcopilot.com/mcp/",
+        "oauth": true
+        // "headers": {
+        //   "Authorization": "Bearer {file:~/.secrets/opencode/github-token}"
+        // }
       }
-    },
-    "github": {
-      "type": "remote",
-      "url": "https://api.githubcopilot.com/mcp/",
-      "enabled": true,
-      "oauth": true
-      // "headers": {
-      //   "Authorization": "Bearer {file:~/.secrets/opencode/github-token}"
-      // }
-     }
     }
   }
 }

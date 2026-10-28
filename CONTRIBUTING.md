@@ -52,9 +52,6 @@ ai-coding-agents/
 │       └── rules/                 # Rule files (e.g. memory-bank.md)
 ├── opencode/                      # Stow package → $HOME (OpenCode V2 native)
 │   └── .config/opencode/          # opencode.jsonc, cli.json, themes/
-├── pi-mono/                       # Stow package → $HOME
-│   └── .pi/
-│       └── agent/extensions/      # TypeScript extensions (*.ts)
 ├── scripts/
 │   └── validate-jsonc.js          # JSONC validation script
 ├── docs/

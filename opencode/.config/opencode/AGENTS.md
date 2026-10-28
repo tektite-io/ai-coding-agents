@@ -41,7 +41,7 @@ Production instance: `cognee-docker-compose.yml` in
 `:8001/mcp` (wired into `opencode.jsonc`'s `mcp.cognee` entry). Runs with  
 `ENABLE_BACKEND_ACCESS_CONTROL=true` for real per-dataset isolation .
 
-### Three datasets, not two
+### Two datasets
 
 - `global_memory` — reusable across any repo: tool/workflow lessons,  
   environment conventions (asdf, rtk, codegraph usage), generic debugging  

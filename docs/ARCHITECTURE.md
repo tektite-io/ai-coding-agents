@@ -234,37 +234,6 @@ OpenCode V2 re-architected `@` in the terminal TUI for file and symbol context a
 
 ---
 
-## Pi-mono extensions
-
-Extensions in `pi-mono/.pi/agent/extensions/` are TypeScript files loaded
-automatically by pi on startup. Each file exports a default function that
-receives the `ExtensionAPI` and registers hooks, commands, and tools.
-
-```mermaid
-flowchart TD
-    pi["pi runtime"]
-
-    subgraph extensions["~/.pi/agent/extensions/"]
-        agents_ext["agents.ts\nAgent registry + /agents picker"]
-        aliases_ext["aliases.ts\n/exit · /q"]
-        git_ext["git-checkpoint.ts\ngit stash per turn"]
-        gate_ext["permission-gate.ts\nDangerous command guard"]
-        piline_ext["piline.ts\nCustom footer"]
-        paths_ext["protected-paths.ts\nWrite guard"]
-        rules_ext["rules.ts\nSystem prompt injection"]
-        sessions_ext["sessions-management.ts\n/session-* commands"]
-        searcher_ext["skills-searcher.ts\n$ trigger picker"]
-        skills_ext["skills.ts\nAuto-skill injection"]
-        todo_ext["todo.ts\ntodo tool + /todos"]
-        tps_ext["tps.ts\nTPS notification"]
-        usage_ext["usage.ts\n/usage dashboard"]
-    end
-
-    pi -->|loads| extensions
-```
-
----
-
 ## Extension interaction map
 
 Some extensions communicate with each other rather than operating in isolation.
