@@ -50,3 +50,10 @@
    - Uses Solid.js reactive primitives (`createSignal`, `createMemo`, `onCleanup`).
    - Styled with semantic OpenCode theme tokens (`context.theme.text.*`, feedback colors).
    - Interactive dialog using `context.ui.dialog.alert` / `context.ui.dialog.select`.
+
+## Development Workflow
+
+- **Active branch:** `opencode-tektite`. All day-to-day development happens directly on this branch in the primary repository root.
+- **Upstream sync branch:** `main` is never used for feature work. It exists only to receive upstream changes; sync upstream into `main`, then merge or rebase `main` into `opencode-tektite`.
+- **Worktrees:** The generic multi-session worktree policy is relaxed for this repo — no `.worktree/<branch>` instances for normal work. Use one only when a genuinely concurrent, conflicting task needs isolation.
+- **Push target:** `origin/opencode-tektite`.
